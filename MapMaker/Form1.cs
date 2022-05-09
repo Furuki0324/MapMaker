@@ -58,6 +58,11 @@ namespace MapMaker
                 MapGrid.Rows.Add(0, 0, 0, 0);
                 MapGrid.Rows.Add(0, 0, 0, 0);
                 MapGrid.Rows.Add(0, 0, 0, 0);
+
+                using(var settingForm = new SettingForm(this))
+                {
+                    settingForm.ShowDialog();
+                }
             }
         }
 
