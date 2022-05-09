@@ -13,6 +13,7 @@ namespace MapMaker
 {
     public partial class Form1 : Form
     {
+        private const float scalar = 0.95f;
         private SQLiteConnection sq;
 
         public Form1()
@@ -51,12 +52,24 @@ namespace MapMaker
                 var stream = saveFile.FileName;
                 Console.WriteLine("Success");
                 Console.WriteLine(stream);
+
+                MapGrid.ColumnCount = 4;
+                MapGrid.Rows.Add(0, 0, 0, 0);
+                MapGrid.Rows.Add(0, 0, 0, 0);
+                MapGrid.Rows.Add(0, 0, 0, 0);
+                MapGrid.Rows.Add(0, 0, 0, 0);
             }
         }
 
         private void OnFormClosing(object sender, FormClosingEventArgs e)
         {
             
+        }
+
+        private void OnFormResize(object sender, EventArgs e)
+        {
+            BottomContainer.Width = (int)(ActiveForm.Width * scalar);
+            TopContainer.Width = (int)(ActiveForm.Width * scalar);
         }
     }
 }
