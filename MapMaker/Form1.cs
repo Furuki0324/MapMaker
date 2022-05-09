@@ -16,8 +16,12 @@ namespace MapMaker
         private const float scalar = 0.95f;
         private SQLiteConnection sq;
         private Image _image = null;
+        private PreviewForm _preview;
+
         public Form1()
         {
+            _preview = new PreviewForm(this);
+            _preview.Show();
             InitializeComponent();
         }
 
@@ -72,7 +76,10 @@ namespace MapMaker
 
         private void OnFormClosing(object sender, FormClosingEventArgs e)
         {
-            
+            if(_preview != null)
+            {
+                _preview.Close();
+            }
         }
 
         private void OnFormResize(object sender, EventArgs e)
@@ -114,6 +121,39 @@ namespace MapMaker
 
             int.TryParse(CurrentChip.Text, out int value);
             MapGrid.SelectedCells[0].Value = value;
+        }
+
+        private void RefleshPreviewForm()
+        {
+            if(_preview == null)
+            {
+                _preview = new PreviewForm(this);
+                _preview.Show();
+            }
+
+
+        }
+
+        public void ClosePreviewForm()
+        {
+            _preview = null;
+        }
+
+        private void OnClosePreviewClicked(object sender, EventArgs e)
+        {
+            _preview.Close();
+            _preview = null;
+        }
+
+        private void OnRefleshPreviewClicked(object sender, EventArgs e)
+        {
+            if(_preview == null)
+            {
+                _preview = new PreviewForm(this);
+                _preview.Show();
+            }
+
+            _preview.Reflesh();
         }
     }
 }
