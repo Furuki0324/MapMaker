@@ -15,7 +15,7 @@ namespace MapMaker
     {
         private const float scalar = 0.95f;
         private SQLiteConnection sq;
-
+        private Image _image = null;
         public Form1()
         {
             InitializeComponent();
@@ -41,23 +41,27 @@ namespace MapMaker
 
             //    }
             //}
-            SaveFileDialog saveFile = new SaveFileDialog();
-            saveFile.FileName = "NewDatabase.db";
-            saveFile.InitialDirectory = @"C:\";
-            saveFile.Filter = "すべてのファイル(*.*)|*.*";
-            saveFile.Title = "保存先を選択してください";
+            //SaveFileDialog saveFile = new SaveFileDialog();
+            //saveFile.FileName = "NewDatabase.db";
+            //saveFile.InitialDirectory = @"C:\";
+            //saveFile.Filter = "すべてのファイル(*.*)|*.*";
+            //saveFile.Title = "保存先を選択してください";
 
-            if(saveFile.ShowDialog() == DialogResult.OK)
+            OpenFileDialog openFile = new OpenFileDialog();
+            openFile.Filter = "PNGファイル|*.png|JPGファイル|*.jpg;*.jpeg";
+
+            if(openFile.ShowDialog() == DialogResult.OK)
             {
-                var stream = saveFile.FileName;
+                if(_image != null)
+                {
+                    _image.Dispose();
+                }
+                _image = Image.FromFile(openFile.FileName);
+                ChipSet.Image = _image;
+                ChipSet.Size = _image.Size;
+                //var stream = saveFile.FileName;
                 Console.WriteLine("Success");
-                Console.WriteLine(stream);
-
-                MapGrid.ColumnCount = 4;
-                MapGrid.Rows.Add(0, 0, 0, 0);
-                MapGrid.Rows.Add(0, 0, 0, 0);
-                MapGrid.Rows.Add(0, 0, 0, 0);
-                MapGrid.Rows.Add(0, 0, 0, 0);
+                //Console.WriteLine(stream);
 
                 using(var settingForm = new SettingForm(this))
                 {
@@ -75,6 +79,41 @@ namespace MapMaker
         {
             BottomContainer.Width = (int)(ActiveForm.Width * scalar);
             TopContainer.Width = (int)(ActiveForm.Width * scalar);
+        }
+
+        private void OnChipSetClick(object sender, EventArgs e)
+        {
+            Point mousePoint = MousePosition;
+            Point chipSetOrigin = PointToScreen(ChipSet.Location);
+
+            int x = mousePoint.X - chipSetOrigin.X;
+            int y = mousePoint.Y - chipSetOrigin.Y;
+            int chipWidth = 1;
+            int chipHeight = 1;
+            if(ChipWidthBox.TextLength == 0
+                || !int.TryParse(ChipWidthBox.Text, out chipWidth)
+                || ChipHeightBox.TextLength == 0
+                || !int.TryParse(ChipHeightBox.Text, out chipHeight))
+            {
+                CurrentChip.Text = "NaN";
+                return;
+            }
+
+            int chipsInRow = ChipSet.Width / chipWidth;
+            int currentChip = (y / chipHeight) * chipsInRow + x / chipWidth;
+            CurrentChip.Text = currentChip.ToString();
+        }
+
+        private void OnGridSelectionChanged(object sender, EventArgs e)
+        {
+            if(CurrentChip.TextLength == 0
+                || CurrentChip.Text == "NaN")
+            {
+                return;
+            }
+
+            int.TryParse(CurrentChip.Text, out int value);
+            MapGrid.SelectedCells[0].Value = value;
         }
     }
 }

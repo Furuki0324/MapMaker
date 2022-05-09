@@ -35,10 +35,8 @@ namespace MapMaker
             _form1.ChipWidthBox.Text = ChipWidth.Value.ToString();
             _form1.ChipHeightBox.Text = ChipHeight.Value.ToString();
 
-            //_form1.MapGrid.Width = (int)MapWidth.Value;
-            //_form1.MapGrid.Height = (int)MapHeight.Value;
             _form1.MapGrid.ColumnCount = (int)MapHeight.Value / (int)ChipHeight.Value;
-            _form1.MapGrid.RowCount = (int)MapWidth.Value / (int)ChipWidth.Value; ;
+            _form1.MapGrid.RowCount = (int)MapWidth.Value / (int)ChipWidth.Value;
             for(int i = 0; i < _form1.MapGrid.RowCount; ++i)
             {
                 _form1.MapGrid.Rows[i].Height = (int)ChipHeight.Value;

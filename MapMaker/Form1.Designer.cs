@@ -47,6 +47,8 @@ namespace MapMaker
             this.SaveData = new System.Windows.Forms.ToolStripMenuItem();
             this.LoadData = new System.Windows.Forms.ToolStripMenuItem();
             this.GenerateCSV = new System.Windows.Forms.ToolStripMenuItem();
+            this.CurrentChip = new System.Windows.Forms.TextBox();
+            this.CurrentChipLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.BottomContainer)).BeginInit();
             this.BottomContainer.Panel1.SuspendLayout();
             this.BottomContainer.Panel2.SuspendLayout();
@@ -74,6 +76,8 @@ namespace MapMaker
             // 
             // BottomContainer.Panel2
             // 
+            this.BottomContainer.Panel2.Controls.Add(this.CurrentChipLabel);
+            this.BottomContainer.Panel2.Controls.Add(this.CurrentChip);
             this.BottomContainer.Panel2.Controls.Add(this.ChipHeightLabel);
             this.BottomContainer.Panel2.Controls.Add(this.ChipHeightBox);
             this.BottomContainer.Panel2.Controls.Add(this.ChipWidthLabel);
@@ -96,6 +100,7 @@ namespace MapMaker
             // 
             // TopContainer.Panel1
             // 
+            this.TopContainer.Panel1.AutoScroll = true;
             this.TopContainer.Panel1.Controls.Add(this.ChipSet);
             // 
             // TopContainer.Panel2
@@ -109,11 +114,12 @@ namespace MapMaker
             // ChipSet
             // 
             this.ChipSet.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.ChipSet.Location = new System.Drawing.Point(13, 13);
+            this.ChipSet.Location = new System.Drawing.Point(11, 13);
             this.ChipSet.Name = "ChipSet";
-            this.ChipSet.Size = new System.Drawing.Size(271, 440);
+            this.ChipSet.Size = new System.Drawing.Size(207, 440);
             this.ChipSet.TabIndex = 0;
             this.ChipSet.TabStop = false;
+            this.ChipSet.Click += new System.EventHandler(this.OnChipSetClick);
             // 
             // MapGrid
             // 
@@ -124,17 +130,20 @@ namespace MapMaker
             this.MapGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.MapGrid.ColumnHeadersVisible = false;
             this.MapGrid.Location = new System.Drawing.Point(36, 13);
+            this.MapGrid.MultiSelect = false;
             this.MapGrid.Name = "MapGrid";
+            this.MapGrid.ReadOnly = true;
             this.MapGrid.RowHeadersVisible = false;
             this.MapGrid.RowHeadersWidth = 51;
             this.MapGrid.RowTemplate.Height = 21;
             this.MapGrid.Size = new System.Drawing.Size(681, 440);
             this.MapGrid.TabIndex = 2;
+            this.MapGrid.SelectionChanged += new System.EventHandler(this.OnGridSelectionChanged);
             // 
             // ChipHeightLabel
             // 
             this.ChipHeightLabel.AutoSize = true;
-            this.ChipHeightLabel.Location = new System.Drawing.Point(626, 19);
+            this.ChipHeightLabel.Location = new System.Drawing.Point(637, 19);
             this.ChipHeightLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.ChipHeightLabel.Name = "ChipHeightLabel";
             this.ChipHeightLabel.Size = new System.Drawing.Size(80, 12);
@@ -143,9 +152,10 @@ namespace MapMaker
             // 
             // ChipHeightBox
             // 
-            this.ChipHeightBox.Location = new System.Drawing.Point(706, 16);
+            this.ChipHeightBox.Location = new System.Drawing.Point(721, 16);
             this.ChipHeightBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.ChipHeightBox.Name = "ChipHeightBox";
+            this.ChipHeightBox.ReadOnly = true;
             this.ChipHeightBox.Size = new System.Drawing.Size(76, 19);
             this.ChipHeightBox.TabIndex = 7;
             // 
@@ -161,16 +171,17 @@ namespace MapMaker
             // 
             // ChipWidthBox
             // 
-            this.ChipWidthBox.Location = new System.Drawing.Point(547, 16);
+            this.ChipWidthBox.Location = new System.Drawing.Point(552, 16);
             this.ChipWidthBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.ChipWidthBox.Name = "ChipWidthBox";
+            this.ChipWidthBox.ReadOnly = true;
             this.ChipWidthBox.Size = new System.Drawing.Size(76, 19);
             this.ChipWidthBox.TabIndex = 5;
             // 
             // MapHeightLabel
             // 
             this.MapHeightLabel.AutoSize = true;
-            this.MapHeightLabel.Location = new System.Drawing.Point(263, 19);
+            this.MapHeightLabel.Location = new System.Drawing.Point(273, 19);
             this.MapHeightLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.MapHeightLabel.Name = "MapHeightLabel";
             this.MapHeightLabel.Size = new System.Drawing.Size(80, 12);
@@ -189,17 +200,19 @@ namespace MapMaker
             // 
             // MapHeightBox
             // 
-            this.MapHeightBox.Location = new System.Drawing.Point(342, 16);
+            this.MapHeightBox.Location = new System.Drawing.Point(357, 16);
             this.MapHeightBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.MapHeightBox.Name = "MapHeightBox";
+            this.MapHeightBox.ReadOnly = true;
             this.MapHeightBox.Size = new System.Drawing.Size(76, 19);
             this.MapHeightBox.TabIndex = 2;
             // 
             // MapWidthBox
             // 
-            this.MapWidthBox.Location = new System.Drawing.Point(181, 16);
+            this.MapWidthBox.Location = new System.Drawing.Point(186, 16);
             this.MapWidthBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.MapWidthBox.Name = "MapWidthBox";
+            this.MapWidthBox.ReadOnly = true;
             this.MapWidthBox.Size = new System.Drawing.Size(76, 19);
             this.MapWidthBox.TabIndex = 1;
             // 
@@ -257,6 +270,25 @@ namespace MapMaker
             this.GenerateCSV.Size = new System.Drawing.Size(180, 22);
             this.GenerateCSV.Text = "CSVファイルを出力";
             // 
+            // CurrentChip
+            // 
+            this.CurrentChip.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.CurrentChip.Location = new System.Drawing.Point(919, 16);
+            this.CurrentChip.Name = "CurrentChip";
+            this.CurrentChip.ReadOnly = true;
+            this.CurrentChip.Size = new System.Drawing.Size(61, 19);
+            this.CurrentChip.TabIndex = 9;
+            // 
+            // CurrentChipLabel
+            // 
+            this.CurrentChipLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.CurrentChipLabel.AutoSize = true;
+            this.CurrentChipLabel.Location = new System.Drawing.Point(837, 19);
+            this.CurrentChipLabel.Name = "CurrentChipLabel";
+            this.CurrentChipLabel.Size = new System.Drawing.Size(76, 12);
+            this.CurrentChipLabel.TabIndex = 10;
+            this.CurrentChipLabel.Text = "選択中のチップ";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -305,6 +337,8 @@ namespace MapMaker
         public System.Windows.Forms.TextBox MapHeightBox;
         public System.Windows.Forms.TextBox MapWidthBox;
         public System.Windows.Forms.DataGridView MapGrid;
+        private System.Windows.Forms.Label CurrentChipLabel;
+        private System.Windows.Forms.TextBox CurrentChip;
     }
 }
 
