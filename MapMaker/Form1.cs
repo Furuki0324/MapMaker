@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 using System.Data.SQLite;
 
 namespace MapMaker
@@ -154,6 +155,32 @@ namespace MapMaker
             }
 
             _preview.Reflesh();
+        }
+
+        private void OnGenerateCsvClicked(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFile = new SaveFileDialog();
+            saveFile.Filter = "CSVファイル|*.csv";
+            saveFile.FileName = "NewMapData.csv";
+            saveFile.Title = "保存先を選択してください";
+
+            if(saveFile.ShowDialog() == DialogResult.OK)
+            {
+                using (StreamWriter writer = new StreamWriter(saveFile.FileName, false,Encoding.GetEncoding("shift-jis")))
+                {
+                    for(int i = 0; i < MapGrid.RowCount; ++i)
+                    {
+                        List<string> csvData = new List<string>();
+                        for (int j = 0; j < MapGrid.ColumnCount; ++j)
+                        {
+                            csvData.Add(MapGrid[j, i].Value.ToString());
+                        }
+                        //string[] array = csvData.ToArray();
+                        string output = string.Join(",", csvData.ToArray());
+                        writer.WriteLine(output);
+                    }
+                }
+            }
         }
     }
 }

@@ -273,6 +273,7 @@ namespace MapMaker
             this.GenerateCSV.Name = "GenerateCSV";
             this.GenerateCSV.Size = new System.Drawing.Size(180, 22);
             this.GenerateCSV.Text = "CSVファイルを出力";
+            this.GenerateCSV.Click += new System.EventHandler(this.OnGenerateCsvClicked);
             // 
             // CurrentChip
             // 
