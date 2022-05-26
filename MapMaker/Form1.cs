@@ -15,6 +15,11 @@ namespace MapMaker
     public partial class Form1 : Form
     {
         private const float scalar = 0.95f;
+        private int _chipWidth = 1;
+        private int _chipHeight = 1;
+        private int _chipsInRow = 1;
+        private Bitmap _previewBitmap;
+        private bool _showPreview = false;
         private SQLiteConnection sq;
         private Image _image = null;
         private PreviewForm _preview;
@@ -46,11 +51,6 @@ namespace MapMaker
 
             //    }
             //}
-            //SaveFileDialog saveFile = new SaveFileDialog();
-            //saveFile.FileName = "NewDatabase.db";
-            //saveFile.InitialDirectory = @"C:\";
-            //saveFile.Filter = "すべてのファイル(*.*)|*.*";
-            //saveFile.Title = "保存先を選択してください";
 
             OpenFileDialog openFile = new OpenFileDialog();
             openFile.Filter = "PNGファイル|*.png|JPGファイル|*.jpg;*.jpeg";
@@ -64,14 +64,14 @@ namespace MapMaker
                 _image = Image.FromFile(openFile.FileName);
                 ChipSet.Image = _image;
                 ChipSet.Size = _image.Size;
-                //var stream = saveFile.FileName;
-                Console.WriteLine("Success");
-                //Console.WriteLine(stream);
 
                 using(var settingForm = new SettingForm(this))
                 {
                     settingForm.ShowDialog();
                 }
+
+                _previewBitmap = new Bitmap(MapPreviewBox.Width, MapPreviewBox.Height);
+                MapPreviewBox.Image = _previewBitmap;
             }
         }
 
@@ -96,43 +96,60 @@ namespace MapMaker
 
             int x = mousePoint.X - chipSetOrigin.X;
             int y = mousePoint.Y - chipSetOrigin.Y;
-            int chipWidth = 1;
-            int chipHeight = 1;
             if(ChipWidthBox.TextLength == 0
-                || !int.TryParse(ChipWidthBox.Text, out chipWidth)
+                || !int.TryParse(ChipWidthBox.Text, out _chipWidth)
                 || ChipHeightBox.TextLength == 0
-                || !int.TryParse(ChipHeightBox.Text, out chipHeight))
+                || !int.TryParse(ChipHeightBox.Text, out _chipHeight))
             {
                 CurrentChip.Text = "NaN";
                 return;
             }
 
-            int chipsInRow = ChipSet.Width / chipWidth;
-            int currentChip = (y / chipHeight) * chipsInRow + x / chipWidth;
+            _chipsInRow = ChipSet.Width / _chipWidth;
+            int currentChip = (y / _chipHeight) * _chipsInRow + x / _chipWidth;
             CurrentChip.Text = currentChip.ToString();
         }
 
         private void OnGridSelectionChanged(object sender, EventArgs e)
         {
-            if(CurrentChip.TextLength == 0
-                || CurrentChip.Text == "NaN")
-            {
-                return;
-            }
+            //if(CurrentChip.TextLength == 0
+            //    || CurrentChip.Text == "NaN")
+            //{
+            //    return;
+            //}
 
-            int.TryParse(CurrentChip.Text, out int value);
-            MapGrid.SelectedCells[0].Value = value;
+            //int.TryParse(CurrentChip.Text, out int value);
+            //foreach(DataGridViewCell cell in MapGrid.SelectedCells)
+            //{
+            //    cell.Value = value;
+            //    DrawGrid(cell.RowIndex, cell.ColumnIndex);
+            //}
         }
 
-        private void RefleshPreviewForm()
+        private void DrawGrid(int selectedRow, int selectedColumn)
         {
-            if(_preview == null)
-            {
-                _preview = new PreviewForm(this);
-                _preview.Show();
-            }
+            Graphics graphics = Graphics.FromImage(_previewBitmap);
+            GraphicsUnit unit = GraphicsUnit.Pixel;
 
+            Rectangle destRect = new Rectangle();
+            destRect.X = selectedColumn * _chipWidth;
+            destRect.Y = selectedRow * _chipHeight;
+            destRect.Width = _chipWidth;
+            destRect.Height = _chipHeight;
 
+            Rectangle sourceRect = new Rectangle();
+            int.TryParse(CurrentChip.Text, out int currentChip);
+            int currentChipRow, currentChipColumn;
+            currentChipRow = currentChip / _chipsInRow;
+            currentChipColumn = currentChip % _chipsInRow;
+            sourceRect.X = currentChipColumn * _chipHeight;
+            sourceRect.Y = currentChipRow * _chipWidth;
+            sourceRect.Width = _chipWidth;
+            sourceRect.Height = _chipHeight;
+            graphics.DrawImage(ChipSet.Image, destRect, sourceRect, unit);
+
+            graphics.Dispose();
+            MapPreviewBox.Refresh();
         }
 
         public void ClosePreviewForm()
@@ -154,8 +171,24 @@ namespace MapMaker
                 _preview.Show();
             }
 
-            _preview.Reflesh();
+            if(ChipSet.Image != null)
+            {
+                int.TryParse(MapWidthBox.Text, out int mapWidth);
+                int.TryParse(MapHeightBox.Text, out int mapHeight);
+
+                Bitmap chipSet = new Bitmap(ChipSet.Image);
+                Bitmap preview = new Bitmap(mapWidth, mapHeight);
+                for(int i = 0; i < MapGrid.RowCount; ++i)
+                {
+                    for(int j = 0; j < MapGrid.ColumnCount; ++j)
+                    {
+
+                    }
+                }
+                _preview.Reflesh(preview);
+            }
         }
+
 
         private void OnGenerateCsvClicked(object sender, EventArgs e)
         {
@@ -175,11 +208,33 @@ namespace MapMaker
                         {
                             csvData.Add(MapGrid[j, i].Value.ToString());
                         }
-                        //string[] array = csvData.ToArray();
+                        
                         string output = string.Join(",", csvData.ToArray());
                         writer.WriteLine(output);
                     }
                 }
+            }
+        }
+
+        private void OnShowPreviewButtonClicked(object sender, MouseEventArgs e)
+        {
+            _showPreview = !_showPreview;
+            MapPreviewBox.Visible = _showPreview;
+        }
+
+        private void OnMouseUpOverGrid(object sender, MouseEventArgs e)
+        {
+            if (CurrentChip.TextLength == 0
+                || CurrentChip.Text == "NaN")
+            {
+                return;
+            }
+
+            int.TryParse(CurrentChip.Text, out int value);
+            foreach (DataGridViewCell cell in MapGrid.SelectedCells)
+            {
+                cell.Value = value;
+                DrawGrid(cell.RowIndex, cell.ColumnIndex);
             }
         }
     }

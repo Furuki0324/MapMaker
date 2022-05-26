@@ -24,9 +24,15 @@ namespace MapMaker
             _form1.ClosePreviewForm();
         }
 
-        public void Reflesh()
+        public void Reflesh(Image previewImage)
         {
-
+            if(Preview.Image != null)
+            {
+                Preview.Image.Dispose();
+            }
+            Preview.Image = previewImage;
+            Preview.Width = previewImage.Width;
+            Preview.Height = previewImage.Height;
         }
     }
 }

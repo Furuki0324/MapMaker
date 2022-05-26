@@ -29,34 +29,34 @@ namespace MapMaker
         /// </summary>
         private void InitializeComponent()
         {
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.Preview = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(this.Preview)).BeginInit();
             this.SuspendLayout();
             // 
-            // pictureBox1
+            // Preview
             // 
-            this.pictureBox1.Location = new System.Drawing.Point(13, 13);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(759, 416);
-            this.pictureBox1.TabIndex = 0;
-            this.pictureBox1.TabStop = false;
+            this.Preview.Location = new System.Drawing.Point(13, 13);
+            this.Preview.Name = "Preview";
+            this.Preview.Size = new System.Drawing.Size(759, 416);
+            this.Preview.TabIndex = 0;
+            this.Preview.TabStop = false;
             // 
             // PreviewForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(784, 441);
-            this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.Preview);
             this.Name = "PreviewForm";
             this.Text = "マッププレビュー";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnPreviewFormClosing);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Preview)).EndInit();
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox Preview;
     }
 }
