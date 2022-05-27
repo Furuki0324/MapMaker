@@ -1,14 +1,15 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.FileIO;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
-using System.Data.SQLite;
 
 namespace MapMaker
 {
@@ -20,40 +21,19 @@ namespace MapMaker
         private int _chipsInRow = 1;
         private Bitmap _previewBitmap;
         private bool _showPreview = false;
-        private SQLiteConnection sq;
         private Image _image = null;
-        private PreviewForm _preview;
+        private ProjectData projectData = new ProjectData();
 
         public Form1()
         {
-            _preview = new PreviewForm(this);
-            _preview.Show();
             InitializeComponent();
         }
 
         private void OnMakeNewButtonClicked(object sender, EventArgs e)
         {
-            //var sqlConnectionSb = new SQLiteConnectionStringBuilder { DataSource = "DZ.db" };
-
-            //using(var cn = new SQLiteConnection(sqlConnectionSb.ToString()))
-            //{
-            //    cn.Open();
-
-            //    using(var cmd = new SQLiteCommand(cn))
-            //    {
-            //        cmd.CommandText = "CREATE TABLE IF NOT EXISTS DZ(" +
-            //            "no INTEGER NOT NULL PRIMARY KEY," +
-            //            "name TEXT NOT NULL," +
-            //            "path TEXT NOT NULL," +
-            //            "value TEXT NOT NULL";
-            //        cmd.ExecuteNonQuery();
-
-
-            //    }
-            //}
-
             OpenFileDialog openFile = new OpenFileDialog();
             openFile.Filter = "PNGファイル|*.png|JPGファイル|*.jpg;*.jpeg";
+            openFile.Title = "マップチップの画像を選択してください";
 
             if(openFile.ShowDialog() == DialogResult.OK)
             {
@@ -65,6 +45,8 @@ namespace MapMaker
                 ChipSet.Image = _image;
                 ChipSet.Size = _image.Size;
 
+                //この周辺は別フォームで変数を変更したりこっちのフォームで変更したりしていて
+                //一貫性が無い。修正が必要。
                 using(var settingForm = new SettingForm(this))
                 {
                     settingForm.ShowDialog();
@@ -72,14 +54,19 @@ namespace MapMaker
 
                 _previewBitmap = new Bitmap(MapPreviewBox.Width, MapPreviewBox.Height);
                 MapPreviewBox.Image = _previewBitmap;
-            }
-        }
 
-        private void OnFormClosing(object sender, FormClosingEventArgs e)
-        {
-            if(_preview != null)
-            {
-                _preview.Close();
+                int.TryParse(MapWidthBox.Text, out int mapWidth);
+                int.TryParse(MapHeightBox.Text, out int mapHeight);
+                int.TryParse(ChipWidthBox.Text, out int chipWidth);
+                int.TryParse(ChipHeightBox.Text, out int chipHeight);
+                projectData.mapChipFilePath = openFile.FileName;
+                projectData.mapWidth = mapWidth;
+                projectData.mapHeight = mapHeight;
+                projectData.chipWidth = chipWidth;
+                projectData.chipHeight = chipHeight;
+
+                _chipsInRow = ChipSet.Width / _chipWidth;
+                projectData.chipsInRow = _chipsInRow;
             }
         }
 
@@ -106,24 +93,9 @@ namespace MapMaker
             }
 
             _chipsInRow = ChipSet.Width / _chipWidth;
+            projectData.chipsInRow = _chipsInRow;
             int currentChip = (y / _chipHeight) * _chipsInRow + x / _chipWidth;
             CurrentChip.Text = currentChip.ToString();
-        }
-
-        private void OnGridSelectionChanged(object sender, EventArgs e)
-        {
-            //if(CurrentChip.TextLength == 0
-            //    || CurrentChip.Text == "NaN")
-            //{
-            //    return;
-            //}
-
-            //int.TryParse(CurrentChip.Text, out int value);
-            //foreach(DataGridViewCell cell in MapGrid.SelectedCells)
-            //{
-            //    cell.Value = value;
-            //    DrawGrid(cell.RowIndex, cell.ColumnIndex);
-            //}
         }
 
         private void DrawGrid(int selectedRow, int selectedColumn)
@@ -138,10 +110,11 @@ namespace MapMaker
             destRect.Height = _chipHeight;
 
             Rectangle sourceRect = new Rectangle();
+            int.TryParse(MapGrid.Rows[selectedRow].Cells[selectedColumn].Value.ToString(), out int selected);
             int.TryParse(CurrentChip.Text, out int currentChip);
             int currentChipRow, currentChipColumn;
-            currentChipRow = currentChip / _chipsInRow;
-            currentChipColumn = currentChip % _chipsInRow;
+            currentChipRow = selected / _chipsInRow;
+            currentChipColumn = selected % _chipsInRow;
             sourceRect.X = currentChipColumn * _chipHeight;
             sourceRect.Y = currentChipRow * _chipWidth;
             sourceRect.Width = _chipWidth;
@@ -152,50 +125,12 @@ namespace MapMaker
             MapPreviewBox.Refresh();
         }
 
-        public void ClosePreviewForm()
-        {
-            _preview = null;
-        }
-
-        private void OnClosePreviewClicked(object sender, EventArgs e)
-        {
-            _preview.Close();
-            _preview = null;
-        }
-
-        private void OnRefleshPreviewClicked(object sender, EventArgs e)
-        {
-            if(_preview == null)
-            {
-                _preview = new PreviewForm(this);
-                _preview.Show();
-            }
-
-            if(ChipSet.Image != null)
-            {
-                int.TryParse(MapWidthBox.Text, out int mapWidth);
-                int.TryParse(MapHeightBox.Text, out int mapHeight);
-
-                Bitmap chipSet = new Bitmap(ChipSet.Image);
-                Bitmap preview = new Bitmap(mapWidth, mapHeight);
-                for(int i = 0; i < MapGrid.RowCount; ++i)
-                {
-                    for(int j = 0; j < MapGrid.ColumnCount; ++j)
-                    {
-
-                    }
-                }
-                _preview.Reflesh(preview);
-            }
-        }
-
-
         private void OnGenerateCsvClicked(object sender, EventArgs e)
         {
             SaveFileDialog saveFile = new SaveFileDialog();
             saveFile.Filter = "CSVファイル|*.csv";
             saveFile.FileName = "NewMapData.csv";
-            saveFile.Title = "保存先を選択してください";
+            saveFile.Title = "グリッドデータの保存先を選択してください";
 
             if(saveFile.ShowDialog() == DialogResult.OK)
             {
@@ -213,6 +148,8 @@ namespace MapMaker
                         writer.WriteLine(output);
                     }
                 }
+
+                projectData.mapCsvFilePath = saveFile.FileName;
             }
         }
 
@@ -236,6 +173,92 @@ namespace MapMaker
                 cell.Value = value;
                 DrawGrid(cell.RowIndex, cell.ColumnIndex);
             }
+        }
+
+        private void OnLoadFileClicked(object sender, EventArgs e)
+        {
+            OpenFileDialog openFile = new OpenFileDialog();
+            openFile.Filter = "jsonファイル|*.json";
+            openFile.Title = "プロジェクトデータを選択してください";
+            if(openFile.ShowDialog() == DialogResult.OK)
+            {
+                string jsonString = File.ReadAllText(openFile.FileName);
+                projectData = JsonSerializer.Deserialize<ProjectData>(jsonString);
+
+                MapGrid.Width = projectData.mapWidth;
+                MapGrid.Height = projectData.mapHeight;
+                MapGrid.RowCount = projectData.mapHeight / projectData.chipHeight;
+                MapGrid.ColumnCount = projectData.mapWidth / projectData.chipWidth;
+                for(int i = 0; i < MapGrid.RowCount; ++i)
+                {
+                    MapGrid.Rows[i].Height = projectData.chipHeight;
+                    for(int j = 0; j < MapGrid.ColumnCount; ++j)
+                    {
+                        if(i == 0)
+                        {
+                            MapGrid.Columns[j].Width = projectData.chipWidth;
+                        }
+                    }
+                }
+                MapPreviewBox.Width = projectData.mapWidth;
+                MapPreviewBox.Height = projectData.mapHeight;
+                _previewBitmap = new Bitmap(MapPreviewBox.Width, MapPreviewBox.Height);
+                MapPreviewBox.Image = _previewBitmap;
+
+                MapWidthBox.Text = projectData.mapWidth.ToString();
+                MapHeightBox.Text = projectData.mapHeight.ToString();
+                ChipWidthBox.Text = projectData.chipWidth.ToString();
+                ChipHeightBox.Text = projectData.chipHeight.ToString();
+                _chipWidth = projectData.chipWidth;
+                _chipHeight = projectData.chipHeight;
+
+                if(_image != null)
+                {
+                    _image.Dispose();
+                }
+                _image = Image.FromFile(projectData.mapChipFilePath);
+                ChipSet.Image = _image;
+                ChipSet.Size = _image.Size;
+                _chipsInRow = ChipSet.Width / _chipWidth;
+                using(TextFieldParser parser = new TextFieldParser(projectData.mapCsvFilePath, Encoding.GetEncoding("shift-jis")))
+                {
+                    parser.TextFieldType = FieldType.Delimited;
+                    parser.SetDelimiters(",");
+
+                    int rowCount = 0;
+                    while(!parser.EndOfData)
+                    {
+                        string[] line = parser.ReadFields();
+                        for(int i = 0; i < line.Length; ++i)
+                        {
+                            MapGrid.Rows[rowCount].Cells[i].Value = line[i];
+                            if (line[i] != "0") DrawGrid(rowCount, i);
+                        }
+                        ++rowCount;
+                    }
+                }
+            }
+        }
+
+        private void OnSaveFileClicked(object sender, EventArgs e)
+        {
+            if(projectData.mapCsvFilePath == null)
+            {
+                DialogResult result = MessageBox.Show("マップのグリッドデータが保存されていません。\n保存しますか？", "確認", MessageBoxButtons.YesNoCancel);
+                if (result == DialogResult.Yes) OnGenerateCsvClicked(sender, e);
+                if (result == DialogResult.Cancel) return;
+            }
+
+            string jsonString = JsonSerializer.Serialize(projectData);
+            SaveFileDialog saveFile = new SaveFileDialog();
+            saveFile.Filter = "jsonファイル|*.json";
+            saveFile.FileName = "NewProjectData.json";
+            saveFile.Title = "プロジェクトの保存先を選択してください";
+            if(saveFile.ShowDialog() == DialogResult.OK)
+            {
+                File.WriteAllText(saveFile.FileName, jsonString);
+            }
+            Console.WriteLine(jsonString);
         }
     }
 }

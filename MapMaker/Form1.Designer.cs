@@ -51,9 +51,6 @@ namespace MapMaker
             this.SaveData = new System.Windows.Forms.ToolStripMenuItem();
             this.LoadData = new System.Windows.Forms.ToolStripMenuItem();
             this.GenerateCSV = new System.Windows.Forms.ToolStripMenuItem();
-            this.プレビューToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.RefleshPreviewButton = new System.Windows.Forms.ToolStripMenuItem();
-            this.ClosePreviewButton = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.BottomContainer)).BeginInit();
             this.BottomContainer.Panel1.SuspendLayout();
             this.BottomContainer.Panel2.SuspendLayout();
@@ -157,7 +154,6 @@ namespace MapMaker
             this.MapGrid.ScrollBars = System.Windows.Forms.ScrollBars.None;
             this.MapGrid.Size = new System.Drawing.Size(681, 440);
             this.MapGrid.TabIndex = 2;
-            this.MapGrid.SelectionChanged += new System.EventHandler(this.OnGridSelectionChanged);
             this.MapGrid.MouseUp += new System.Windows.Forms.MouseEventHandler(this.OnMouseUpOverGrid);
             // 
             // CurrentChipLabel
@@ -173,7 +169,7 @@ namespace MapMaker
             // DoesShowPreview
             // 
             this.DoesShowPreview.AutoSize = true;
-            this.DoesShowPreview.Location = new System.Drawing.Point(143, 1);
+            this.DoesShowPreview.Location = new System.Drawing.Point(63, 17);
             this.DoesShowPreview.Name = "DoesShowPreview";
             this.DoesShowPreview.Size = new System.Drawing.Size(101, 16);
             this.DoesShowPreview.TabIndex = 3;
@@ -193,7 +189,7 @@ namespace MapMaker
             // ChipHeightLabel
             // 
             this.ChipHeightLabel.AutoSize = true;
-            this.ChipHeightLabel.Location = new System.Drawing.Point(637, 19);
+            this.ChipHeightLabel.Location = new System.Drawing.Point(675, 19);
             this.ChipHeightLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.ChipHeightLabel.Name = "ChipHeightLabel";
             this.ChipHeightLabel.Size = new System.Drawing.Size(80, 12);
@@ -202,7 +198,7 @@ namespace MapMaker
             // 
             // ChipHeightBox
             // 
-            this.ChipHeightBox.Location = new System.Drawing.Point(721, 16);
+            this.ChipHeightBox.Location = new System.Drawing.Point(759, 16);
             this.ChipHeightBox.Margin = new System.Windows.Forms.Padding(2);
             this.ChipHeightBox.Name = "ChipHeightBox";
             this.ChipHeightBox.ReadOnly = true;
@@ -212,7 +208,7 @@ namespace MapMaker
             // ChipWidthLabel
             // 
             this.ChipWidthLabel.AutoSize = true;
-            this.ChipWidthLabel.Location = new System.Drawing.Point(476, 19);
+            this.ChipWidthLabel.Location = new System.Drawing.Point(514, 19);
             this.ChipWidthLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.ChipWidthLabel.Name = "ChipWidthLabel";
             this.ChipWidthLabel.Size = new System.Drawing.Size(72, 12);
@@ -221,7 +217,7 @@ namespace MapMaker
             // 
             // ChipWidthBox
             // 
-            this.ChipWidthBox.Location = new System.Drawing.Point(552, 16);
+            this.ChipWidthBox.Location = new System.Drawing.Point(590, 16);
             this.ChipWidthBox.Margin = new System.Windows.Forms.Padding(2);
             this.ChipWidthBox.Name = "ChipWidthBox";
             this.ChipWidthBox.ReadOnly = true;
@@ -231,7 +227,7 @@ namespace MapMaker
             // MapHeightLabel
             // 
             this.MapHeightLabel.AutoSize = true;
-            this.MapHeightLabel.Location = new System.Drawing.Point(304, 19);
+            this.MapHeightLabel.Location = new System.Drawing.Point(342, 19);
             this.MapHeightLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.MapHeightLabel.Name = "MapHeightLabel";
             this.MapHeightLabel.Size = new System.Drawing.Size(80, 12);
@@ -241,7 +237,7 @@ namespace MapMaker
             // MapWidthLabel
             // 
             this.MapWidthLabel.AutoSize = true;
-            this.MapWidthLabel.Location = new System.Drawing.Point(141, 19);
+            this.MapWidthLabel.Location = new System.Drawing.Point(179, 19);
             this.MapWidthLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.MapWidthLabel.Name = "MapWidthLabel";
             this.MapWidthLabel.Size = new System.Drawing.Size(72, 12);
@@ -250,7 +246,7 @@ namespace MapMaker
             // 
             // MapHeightBox
             // 
-            this.MapHeightBox.Location = new System.Drawing.Point(388, 16);
+            this.MapHeightBox.Location = new System.Drawing.Point(426, 16);
             this.MapHeightBox.Margin = new System.Windows.Forms.Padding(2);
             this.MapHeightBox.Name = "MapHeightBox";
             this.MapHeightBox.ReadOnly = true;
@@ -259,7 +255,7 @@ namespace MapMaker
             // 
             // MapWidthBox
             // 
-            this.MapWidthBox.Location = new System.Drawing.Point(217, 16);
+            this.MapWidthBox.Location = new System.Drawing.Point(255, 16);
             this.MapWidthBox.Margin = new System.Windows.Forms.Padding(2);
             this.MapWidthBox.Name = "MapWidthBox";
             this.MapWidthBox.ReadOnly = true;
@@ -274,8 +270,7 @@ namespace MapMaker
             this.MenuStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Visible;
             this.MenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.MenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.MenuPanel,
-            this.プレビューToolStripMenuItem});
+            this.MenuPanel});
             this.MenuStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow;
             this.MenuStrip.Location = new System.Drawing.Point(0, 12);
             this.MenuStrip.Name = "MenuStrip";
@@ -299,51 +294,30 @@ namespace MapMaker
             // MakeNew
             // 
             this.MakeNew.Name = "MakeNew";
-            this.MakeNew.Size = new System.Drawing.Size(161, 22);
+            this.MakeNew.Size = new System.Drawing.Size(180, 22);
             this.MakeNew.Text = "新規";
             this.MakeNew.Click += new System.EventHandler(this.OnMakeNewButtonClicked);
             // 
             // SaveData
             // 
             this.SaveData.Name = "SaveData";
-            this.SaveData.Size = new System.Drawing.Size(161, 22);
+            this.SaveData.Size = new System.Drawing.Size(180, 22);
             this.SaveData.Text = "保存";
+            this.SaveData.Click += new System.EventHandler(this.OnSaveFileClicked);
             // 
             // LoadData
             // 
             this.LoadData.Name = "LoadData";
-            this.LoadData.Size = new System.Drawing.Size(161, 22);
+            this.LoadData.Size = new System.Drawing.Size(180, 22);
             this.LoadData.Text = "読み込み";
+            this.LoadData.Click += new System.EventHandler(this.OnLoadFileClicked);
             // 
             // GenerateCSV
             // 
             this.GenerateCSV.Name = "GenerateCSV";
-            this.GenerateCSV.Size = new System.Drawing.Size(161, 22);
+            this.GenerateCSV.Size = new System.Drawing.Size(180, 22);
             this.GenerateCSV.Text = "CSVファイルを出力";
             this.GenerateCSV.Click += new System.EventHandler(this.OnGenerateCsvClicked);
-            // 
-            // プレビューToolStripMenuItem
-            // 
-            this.プレビューToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.RefleshPreviewButton,
-            this.ClosePreviewButton});
-            this.プレビューToolStripMenuItem.Name = "プレビューToolStripMenuItem";
-            this.プレビューToolStripMenuItem.Size = new System.Drawing.Size(61, 19);
-            this.プレビューToolStripMenuItem.Text = "プレビュー";
-            // 
-            // RefleshPreviewButton
-            // 
-            this.RefleshPreviewButton.Name = "RefleshPreviewButton";
-            this.RefleshPreviewButton.Size = new System.Drawing.Size(155, 22);
-            this.RefleshPreviewButton.Text = "更新";
-            this.RefleshPreviewButton.Click += new System.EventHandler(this.OnRefleshPreviewClicked);
-            // 
-            // ClosePreviewButton
-            // 
-            this.ClosePreviewButton.Name = "ClosePreviewButton";
-            this.ClosePreviewButton.Size = new System.Drawing.Size(155, 22);
-            this.ClosePreviewButton.Text = "プレビューを閉じる";
-            this.ClosePreviewButton.Click += new System.EventHandler(this.OnClosePreviewClicked);
             // 
             // Form1
             // 
@@ -354,7 +328,6 @@ namespace MapMaker
             this.Controls.Add(this.BottomContainer);
             this.Name = "Form1";
             this.Text = "MapMaker";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnFormClosing);
             this.ResizeEnd += new System.EventHandler(this.OnFormResize);
             this.BottomContainer.Panel1.ResumeLayout(false);
             this.BottomContainer.Panel2.ResumeLayout(false);
@@ -396,9 +369,6 @@ namespace MapMaker
         public System.Windows.Forms.DataGridView MapGrid;
         private System.Windows.Forms.Label CurrentChipLabel;
         private System.Windows.Forms.TextBox CurrentChip;
-        private System.Windows.Forms.ToolStripMenuItem プレビューToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem RefleshPreviewButton;
-        private System.Windows.Forms.ToolStripMenuItem ClosePreviewButton;
         private System.Windows.Forms.CheckBox DoesShowPreview;
         public System.Windows.Forms.PictureBox MapPreviewBox;
     }

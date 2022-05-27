@@ -23,6 +23,17 @@ namespace MapMaker
 
     }
 
+    public class ProjectData
+    {
+        public String mapChipFilePath { get; set; }
+        public String mapCsvFilePath { get; set; }
+        public int mapWidth { get; set; }
+        public int mapHeight { get; set; }
+        public int chipWidth { get; set; }
+        public int chipHeight { get; set; }
+        public int chipsInRow { get; set; }
+    }
+
     class Data
     {
         private void ExecuteNonQuery(string query)
