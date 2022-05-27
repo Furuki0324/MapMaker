@@ -134,7 +134,7 @@ namespace MapMaker
 
             if(saveFile.ShowDialog() == DialogResult.OK)
             {
-                using (StreamWriter writer = new StreamWriter(saveFile.FileName, false,Encoding.GetEncoding("shift-jis")))
+                using (StreamWriter writer = new StreamWriter(saveFile.FileName, false,Encoding.UTF8))
                 {
                     for(int i = 0; i < MapGrid.RowCount; ++i)
                     {
@@ -220,7 +220,7 @@ namespace MapMaker
                 ChipSet.Image = _image;
                 ChipSet.Size = _image.Size;
                 _chipsInRow = ChipSet.Width / _chipWidth;
-                using(TextFieldParser parser = new TextFieldParser(projectData.mapCsvFilePath, Encoding.GetEncoding("shift-jis")))
+                using(TextFieldParser parser = new TextFieldParser(projectData.mapCsvFilePath, Encoding.UTF8))
                 {
                     parser.TextFieldType = FieldType.Delimited;
                     parser.SetDelimiters(",");
