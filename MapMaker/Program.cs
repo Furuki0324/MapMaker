@@ -25,8 +25,9 @@ namespace MapMaker
 
     public class ProjectData
     {
-        public String mapChipFilePath { get; set; }
-        public String mapCsvFilePath { get; set; }
+        public string projectDataPath { get; set; }
+        public string mapChipFilePath { get; set; }
+        public string mapCsvFilePath { get; set; }
         public int mapWidth { get; set; }
         public int mapHeight { get; set; }
         public int chipWidth { get; set; }

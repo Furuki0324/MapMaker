@@ -70,12 +70,6 @@ namespace MapMaker
             }
         }
 
-        private void OnFormResize(object sender, EventArgs e)
-        {
-            BottomContainer.Width = (int)(ActiveForm.Width * scalar);
-            TopContainer.Width = (int)(ActiveForm.Width * scalar);
-        }
-
         private void OnChipSetClick(object sender, EventArgs e)
         {
             Point mousePoint = MousePosition;
@@ -127,30 +121,51 @@ namespace MapMaker
 
         private void OnGenerateCsvClicked(object sender, EventArgs e)
         {
-            SaveFileDialog saveFile = new SaveFileDialog();
-            saveFile.Filter = "CSVファイル|*.csv";
-            saveFile.FileName = "NewMapData.csv";
-            saveFile.Title = "グリッドデータの保存先を選択してください";
-
-            if(saveFile.ShowDialog() == DialogResult.OK)
+            if(projectData.mapCsvFilePath == null)
             {
-                using (StreamWriter writer = new StreamWriter(saveFile.FileName, false,Encoding.UTF8))
+                SaveFileDialog saveFile = new SaveFileDialog();
+                saveFile.Filter = "CSVファイル|*.csv";
+                saveFile.FileName = "NewMapData.csv";
+                saveFile.Title = "グリッドデータの保存先を選択してください";
+
+                if (saveFile.ShowDialog() == DialogResult.OK)
                 {
-                    for(int i = 0; i < MapGrid.RowCount; ++i)
+                    using (StreamWriter writer = new StreamWriter(saveFile.FileName, false, Encoding.UTF8))
+                    {
+                        for (int i = 0; i < MapGrid.RowCount; ++i)
+                        {
+                            List<string> csvData = new List<string>();
+                            for (int j = 0; j < MapGrid.ColumnCount; ++j)
+                            {
+                                csvData.Add(MapGrid[j, i].Value.ToString());
+                            }
+
+                            string output = string.Join(",", csvData.ToArray());
+                            writer.WriteLine(output);
+                        }
+                    }
+
+                    projectData.mapCsvFilePath = saveFile.FileName;
+                }
+            }
+            else
+            {
+                using (StreamWriter writer = new StreamWriter(projectData.mapCsvFilePath, false, Encoding.UTF8))
+                {
+                    for (int i = 0; i < MapGrid.RowCount; ++i)
                     {
                         List<string> csvData = new List<string>();
                         for (int j = 0; j < MapGrid.ColumnCount; ++j)
                         {
                             csvData.Add(MapGrid[j, i].Value.ToString());
                         }
-                        
+
                         string output = string.Join(",", csvData.ToArray());
                         writer.WriteLine(output);
                     }
                 }
-
-                projectData.mapCsvFilePath = saveFile.FileName;
             }
+
         }
 
         private void OnShowPreviewButtonClicked(object sender, MouseEventArgs e)
@@ -184,6 +199,17 @@ namespace MapMaker
             {
                 string jsonString = File.ReadAllText(openFile.FileName);
                 projectData = JsonSerializer.Deserialize<ProjectData>(jsonString);
+
+                if(!File.Exists(projectData.mapCsvFilePath))
+                {
+                    MessageBox.Show("保存した場所にCSVファイルが存在しません。\n移動または削除された可能性があります。", "エラー", MessageBoxButtons.OK);
+                    return;
+                }
+                if(!File.Exists(projectData.mapChipFilePath))
+                {
+                    MessageBox.Show("使用しているマップチップの画像を見つけられませんでした。\n移動または削除された可能性があります。", "エラー", MessageBoxButtons.OK);
+                    return;
+                }
 
                 MapGrid.Width = projectData.mapWidth;
                 MapGrid.Height = projectData.mapHeight;
@@ -242,23 +268,24 @@ namespace MapMaker
 
         private void OnSaveFileClicked(object sender, EventArgs e)
         {
-            if(projectData.mapCsvFilePath == null)
+            if(projectData.projectDataPath == null)
             {
-                DialogResult result = MessageBox.Show("マップのグリッドデータが保存されていません。\n保存しますか？", "確認", MessageBoxButtons.YesNoCancel);
-                if (result == DialogResult.Yes) OnGenerateCsvClicked(sender, e);
-                if (result == DialogResult.Cancel) return;
+                SaveFileDialog saveFile = new SaveFileDialog();
+                saveFile.Filter = "jsonファイル|*.json";
+                saveFile.FileName = "NewProjectData.json";
+                saveFile.Title = "プロジェクトの保存先を選択してください";
+                if (saveFile.ShowDialog() == DialogResult.OK)
+                {
+                    projectData.projectDataPath = saveFile.FileName;
+                }
+                else
+                {
+                    return;
+                }
             }
-
+            OnGenerateCsvClicked(sender, e);
             string jsonString = JsonSerializer.Serialize(projectData);
-            SaveFileDialog saveFile = new SaveFileDialog();
-            saveFile.Filter = "jsonファイル|*.json";
-            saveFile.FileName = "NewProjectData.json";
-            saveFile.Title = "プロジェクトの保存先を選択してください";
-            if(saveFile.ShowDialog() == DialogResult.OK)
-            {
-                File.WriteAllText(saveFile.FileName, jsonString);
-            }
-            Console.WriteLine(jsonString);
+            File.WriteAllText(projectData.projectDataPath, jsonString);
         }
     }
 }
